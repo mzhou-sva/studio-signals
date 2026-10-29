@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Studio Signals｜共享工作室协作桌</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="stage">
+    <video id="webcam" autoplay playsinline muted></video>
+    <canvas id="overlay"></canvas>
+    <div class="bands" aria-hidden="true">
+      <div class="band" data-zone="focus"><b>专注区</b><span>我想独立工作一会儿</span></div>
+      <div class="band" data-zone="open"><b>开放交流区</b><span>我愿意听听别人的想法</span></div>
+      <div class="band" data-zone="feedback"><b>需要反馈区</b><span>我想找人聊聊我的项目</span></div>
+    </div>
+    <div id="banner" class="banner" role="status" aria-live="polite" hidden></div>
+  </div>
+
+  <aside id="panel">
+    <h1>Studio Signals <small>共享工作室协作桌</small></h1>
+    <p class="ask">“我现在可以打扰你吗？” “我想找人聊一下项目，可以找谁？”</p>
+
+    <section>
+      <h2>状态</h2>
+      <ul id="people" class="people"></ul>
+    </section>
+
+    <section>
+      <h2>可交流名单</h2>
+      <p id="openList" class="openlist">暂时没有人</p>
+    </section>
+
+    <section>
+      <h2>没有摄像头？手动移动物件</h2>
+      <div id="sim" class="sim"></div>
+    </section>
+
+    <section>
+      <h2>发生了什么</h2>
+      <ol id="log" class="log"></ol>
+    </section>
+  </aside>
+
+  <div id="start">
+    <h2>Studio Signals</h2>
+    <p>三个人物二维码、三个区域、一个状态界面。<br>把贴着二维码的物件移到不同区域，表达你现在的状态。</p>
+    <button id="startButton" type="button">[ 打开摄像头 ]</button>
+    <button id="demoButton" type="button" class="ghost">[ 不用摄像头，直接演示 ]</button>
+    <p id="startMessage"></p>
+    <p class="codes">二维码：<code>phone</code> = A，<code>object-a</code> = B，<code>object-b</code> = C（沿用 snack beat machine 的码表）</p>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+  <script src="scanner.js"></script>
+  <script src="signals.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
