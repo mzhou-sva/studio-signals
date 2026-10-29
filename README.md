@@ -1,35 +1,36 @@
-# Studio Signals｜共享工作室协作桌
+# Studio Signals | Shared Studio Desk
 
-围绕两个问题：“我现在可以打扰你吗？”“我想找人聊一下项目，可以找谁？”
+Built around two questions: "Can I interrupt you right now?" and "I want to talk about my project. Who can I ask?"
 
-每个人用一个贴着二维码的小物件代表自己，通过移动它表达当前状态。摄像头画面从左到右分成三个区域：
+Each person is represented by a small object with a QR code on it. Moving the object shows how that person is right now.
+The camera picture is split into three zones, left to right:
 
-| 区域 | 用户表达的意思 | 系统的反应 |
+| Zone | What the person means | What the system does |
 |---|---|---|
-| 专注区 | 我想独立工作一会儿。 | 显示“专注中”，暂时不列入可交流名单。 |
-| 开放交流区 | 我现在愿意听听别人的想法。 | 显示这个人可以参与交流。 |
-| 需要反馈区 | 我想找人聊聊我的项目。 | 显示求助状态，并提示有哪些愿意交流的人。 |
+| Focus zone | I want to work on my own for a while. | Shows "Focusing" and keeps the person off the open list. |
+| Open zone | I'm happy to hear other people's ideas right now. | Shows the person can join a conversation. |
+| Feedback zone | I want to talk about my project. | Shows a request for feedback and who is open to talk. |
 
-例如 A 在专注区，B 在需要反馈区，C 把物件移进开放交流区，屏幕提示：
-“B 想讨论一个项目想法，C 现在可以和 B 聊一聊。” C 回到专注区后，可交流名单随之更新。
+Example: A is in the Focus zone, B is in the Feedback zone. C moves their object into the Open zone and the screen says
+"B wants to discuss a project idea. C, you can talk to B now." When C goes back to the Focus zone, the open list updates.
 
-## 二维码
+## QR codes
 
-`phone` = A，`object-a` = B，`object-b` = C。其他码只画灰框，不参与。
+`phone` = A, `object-a` = B, `object-b` = C. Any other code only gets a grey box.
 
-## 运行
+## Run
 
 ```
 python3 -m http.server 8000
 ```
 
-打开 `http://localhost:8000/`。摄像头需要 `http://localhost` 或 HTTPS。没有摄像头时点“直接演示”，用按钮手动移动物件。
+Open `http://localhost:8000/`. The camera needs `http://localhost` or HTTPS. No camera? Use the demo button and move the objects with the buttons.
 
-## 参数与测试
+## Timing and tests
 
-一个物件在新区域停留 0.5 秒才算移动，消失 1.5 秒才算离开桌面（`signals.js` 里的 `SETTLE_MS`、`LEAVE_MS`）。
-`node test.js` 检查完整流程。
+An object has to stay in a new zone for 0.5 s to count as a move, and be gone for 1.5 s to count as taken off the table
+(`SETTLE_MS` and `LEAVE_MS` in `signals.js`). `node test.js` checks the whole story.
 
-## 部署
+## Deploy
 
-纯静态页面，无需任何 key。GitHub Pages：Settings → Pages → `main` 分支根目录。二维码识别库 jsQR 从 CDN 加载。
+Static page, no keys needed. GitHub Pages: Settings → Pages → `main` branch, root folder. The QR library jsQR loads from a CDN.

@@ -28,13 +28,13 @@ function renderPeople(snapshot) {
     li.className = 'person';
     li.dataset.zone = p.zone || '';
     const detail = p.zone
-      ? `${ZONES[p.zone].name}${p.helpers.length ? ` · 可以找：${p.helpers.join('、')}` : p.zone === 'feedback' ? ' · 暂时没有人可交流' : ''}`
-      : '把物件放到桌上';
+      ? `${ZONES[p.zone].name}${p.helpers.length ? ` · Talk to: ${p.helpers.join(', ')}` : p.zone === 'feedback' ? ' · Nobody open yet' : ''}`
+      : 'Put your object on the table';
     li.innerHTML = `<div class="avatar" style="background:${p.color}">${p.name}</div>`
       + `<div><div class="status">${p.status}</div><div class="detail">${detail}</div></div>`;
     peopleList.appendChild(li);
   }
-  openList.textContent = snapshot.open.length ? snapshot.open.join('、') : '暂时没有人';
+  openList.textContent = snapshot.open.length ? snapshot.open.join(', ') : 'Nobody yet';
 }
 
 function say(event) {
@@ -57,7 +57,7 @@ function refresh(events) {
 
 // ---- simulator (no camera) ----------------------------------------------
 
-const SIM_CHOICES = [...ZONE_ORDER.map((z) => [z, ZONES[z].name]), [null, '拿走']];
+const SIM_CHOICES = [...ZONE_ORDER.map((z) => [z, ZONES[z].name]), [null, 'Remove']];
 
 function renderSim() {
   sim.innerHTML = '';
@@ -69,7 +69,7 @@ function renderSim() {
     for (const [zone, label] of SIM_CHOICES) {
       const button = document.createElement('button');
       button.type = 'button';
-      button.textContent = label.replace('交流区', '交流').replace('需要反馈区', '要反馈');
+      button.textContent = label.replace(' zone', '');
       button.title = label;
       button.setAttribute('aria-pressed', String(p.zone === zone));
       button.addEventListener('click', () => refresh(board.place(p.id, zone, performance.now())));
@@ -103,13 +103,13 @@ function begin() {
 }
 
 document.getElementById('startButton').addEventListener('click', async () => {
-  startMessage.textContent = '正在打开摄像头…';
+  startMessage.textContent = 'Opening camera…';
   try {
     stream = await openCamera();
     video.srcObject = stream;
   } catch (error) {
     console.error('Unable to access webcam:', error);
-    startMessage.textContent = '无法打开摄像头。请允许访问（需要 http://localhost 或 HTTPS），或选择直接演示。';
+    startMessage.textContent = 'Could not open the camera. Allow camera access (needs http://localhost or HTTPS), or try the demo without a camera.';
     return;
   }
   begin();
@@ -169,7 +169,7 @@ function tick() {
       sightings.push({ id: person.id, x: (c.x / overlay.width) * 100, y: (c.y / overlay.height) * 100 });
       const zone = board.snapshot().people.find((p) => p.id === person.id).zone;
       drawBox(code.location, person.color);
-      drawTag(code.location, `${board.nameOf(person.id)} · ${zone ? ZONES[zone].status : '移动中'}`, person.color);
+      drawTag(code.location, `${board.nameOf(person.id)} · ${zone ? ZONES[zone].status : 'Moving'}`, person.color);
     }
     const events = board.observe(performance.now(), sightings);
     const key = JSON.stringify(board.snapshot().people.map((p) => [p.zone]));

@@ -3,9 +3,9 @@
 // Each person is one QR code from the code sheet. The table is cut into three
 // zones (left to right in the camera picture):
 //
-//   focus    专注区     "I want to work on my own."   -> 专注中, not on the open list
-//   open     开放交流区 "I'm happy to hear ideas."    -> on the open list
-//   feedback 需要反馈区 "I want to talk my project."  -> 求助中, told who is open
+//   focus    Focus zone    "I want to work on my own."   -> Focusing, not on the open list
+//   open     Open zone     "I'm happy to hear ideas."    -> on the open list
+//   feedback Feedback zone "I want to talk my project."  -> Needs feedback, told who is open
 //
 // A code has to stay in a new zone for SETTLE_MS before the move counts, and a
 // code that is not seen for LEAVE_MS counts as taken off the table. Pure logic,
@@ -17,13 +17,13 @@
   const ZONE_MARGIN = 3;
 
   const ZONES = {
-    focus: { name: '专注区', status: '专注中', color: '#7c8cff' },
-    open: { name: '开放交流区', status: '可交流', color: '#3ecf8e' },
-    feedback: { name: '需要反馈区', status: '求助中', color: '#ffb547' },
+    focus: { name: 'Focus zone', status: 'Focusing', color: '#7c8cff' },
+    open: { name: 'Open zone', status: 'Open to talk', color: '#3ecf8e' },
+    feedback: { name: 'Feedback zone', status: 'Needs feedback', color: '#ffb547' },
   };
   // Left to right in the camera picture.
   const ZONE_ORDER = ['focus', 'open', 'feedback'];
-  const ABSENT_STATUS = '不在桌上';
+  const ABSENT_STATUS = 'Not on table';
 
   // Payloads on the printed code sheet (same sheet as the snack beat machine).
   // bottle, object-c and notebook stay unused.
@@ -51,7 +51,7 @@
   }
 
   function joinNames(names) {
-    return names.join('、');
+    return names.length > 1 ? `${names.slice(0, -1).join(', ')} and ${names[names.length - 1]}` : names[0];
   }
 
   class StudioBoard {
@@ -148,8 +148,8 @@
 
       if (zone === 'focus') {
         const text = from === 'open'
-          ? `${name} 回到专注区，可交流名单已更新。`
-          : `${name} 进入专注区：专注中，暂时不列入可交流名单。`;
+          ? `${name} is back in the Focus zone. The open list is updated.`
+          : `${name} is in the Focus zone: focusing, not on the open list.`;
         const events = [event(text)];
         if (from === 'open') {
           for (const asker of this.inZone('feedback')) {
@@ -157,8 +157,8 @@
             events.push({
               kind: 'update', id: asker, from: 'feedback', to: 'feedback', at: now,
               text: open.length
-                ? `${this.nameOf(asker)}，现在还可以找：${joinNames(open)}。`
-                : `${this.nameOf(asker)}，暂时没有人在开放交流区，稍等一下。`,
+                ? `${this.nameOf(asker)}, you can still talk to ${joinNames(open)}.`
+                : `${this.nameOf(asker)}, nobody is in the Open zone right now. Check back soon.`,
             });
           }
         }
@@ -167,22 +167,22 @@
 
       if (zone === 'open') {
         const askers = others('feedback');
-        if (!askers.length) return [event(`${name} 进入开放交流区，现在可以参与交流。`)];
+        if (!askers.length) return [event(`${name} is in the Open zone and can join a conversation.`)];
         // The prompt from the brief: tell the person who just opened up.
         return askers.map((asker) => event(
-          `${this.nameOf(asker)} 想讨论一个项目想法，${name} 现在可以和 ${this.nameOf(asker)} 聊一聊。`,
+          `${this.nameOf(asker)} wants to discuss a project idea. ${name}, you can talk to ${this.nameOf(asker)} now.`,
           'match', { with: asker },
         ));
       }
 
       if (zone === 'feedback') {
         const open = others('open');
-        if (!open.length) return [event(`${name} 想找人聊项目，现在还没有人在开放交流区。`)];
-        return [event(`${name} 想找人聊项目：${joinNames(open.map((o) => this.nameOf(o)))} 现在愿意交流。`, 'match', { with: open[0] })];
+        if (!open.length) return [event(`${name} wants to talk about a project. Nobody is in the Open zone yet.`)];
+        return [event(`${name} wants to talk about a project: ${joinNames(open.map((o) => this.nameOf(o)))} ${open.length > 1 ? 'are' : 'is'} open to talk.`, 'match', { with: open[0] })];
       }
 
       // zone === null: taken off the table.
-      return [event(`${name} 的物件离开了桌面。`, 'leave')];
+      return [event(`${name}'s object left the table.`, 'leave')];
     }
 
     // Everything the status screen needs.
