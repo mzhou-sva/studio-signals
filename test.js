@@ -50,4 +50,65 @@ t += LEAVE_MS;
 assert.strictEqual(cam.observe(t, [])[0].kind, 'leave');
 assert.strictEqual(cam.snapshot().people[0].status, 'Not on table');
 
+
+// 5. Come closer, then apart (simulator path, no settle time).
+const near = new StudioBoard();
+near.place('a', 'focus', 0);
+near.place('b', 'feedback', 0);
+near.place('c', 'open', 0);
+assert.strictEqual(near.snapshot().links.length, 0, 'zone centres are far apart');
+
+let ev = near.approach('b', 1);                       // B moves toward C
+assert.strictEqual(ev[0].kind, 'invite');
+assert.strictEqual(ev[0].text, 'B is moving toward C: invitation to discuss. C, move closer to join.');
+s = near.snapshot();
+assert.strictEqual(s.people[1].status, 'Inviting C');
+assert.strictEqual(s.people[2].status, 'Invited by B');
+
+assert.deepStrictEqual(near.updateLinks(2), [], 'B alone closing in is still only an invitation');
+assert.strictEqual(near.snapshot().links[0].stage, 'invite');
+
+ev = near.approach('c', 3);                            // C moves closer too
+assert.strictEqual(ev[0].kind, 'talk');
+assert.strictEqual(ev[0].text, 'B and C are discussing.');
+s = near.snapshot();
+assert.strictEqual(s.people[1].status, 'Discussing');
+assert.strictEqual(s.people[2].status, 'Discussing');
+assert.strictEqual(s.people[0].status, 'Focusing', 'A is not part of the link');
+
+ev = near.spread(4);                                   // objects separate
+assert.strictEqual(ev[0].kind, 'apart');
+s = near.snapshot();
+assert.strictEqual(s.links.length, 0);
+assert.strictEqual(s.people[1].status, 'Needs feedback');
+assert.strictEqual(s.people[2].status, 'Open to talk');
+
+// An invitation is cancelled when the asker backs off, and when the helper leaves the Open zone.
+near.approach('b', 5);
+assert.strictEqual(near.snapshot().links.length, 1);
+ev = near.spread(6);
+assert.strictEqual(ev[0].kind, 'cancel');
+near.approach('b', 7);
+near.place('c', 'focus', 8);
+assert.strictEqual(near.snapshot().links.length, 0);
+
+// Camera path: positions come from the picture, aspect 16:9 (x in % of width, y in % of height).
+const live = new StudioBoard();
+let n = 10000;
+const frame = (b, c) => [{ id: 'b', x: b[0], y: b[1] }, { id: 'c', x: c[0], y: c[1] }];
+live.observe(n, frame([85, 50], [50, 50]));
+n += SETTLE_MS;
+live.observe(n, frame([85, 50], [50, 50]));
+assert.deepStrictEqual(live.snapshot().links, []);
+n += 50;
+assert.strictEqual(live.observe(n, frame([72, 50], [50, 50]))[0].kind, 'invite');   // 22 x 1.78 = 39 away
+n += 50;
+assert.deepStrictEqual(live.observe(n, frame([68, 50], [50, 50])), [], 'asker alone is not enough');
+n += 50;
+assert.strictEqual(live.observe(n, frame([68, 50], [60, 50]))[0].kind, 'talk');    // helper moved closer too, 14 away
+n += 50;
+assert.deepStrictEqual(live.observe(n, frame([71, 50], [60, 50])), [], 'a little jitter keeps the link (hysteresis)');
+n += 50;
+assert.strictEqual(live.observe(n, frame([88, 50], [50, 50]))[0].kind, 'apart');
+
 console.log('studio-signals: all checks passed');

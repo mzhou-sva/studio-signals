@@ -14,6 +14,21 @@ The camera picture is split into three zones, left to right:
 Example: A is in the Focus zone, B is in the Feedback zone. C moves their object into the Open zone and the screen says
 "B wants to discuss a project idea. C, you can talk to B now." When C goes back to the Focus zone, the open list updates.
 
+## Three movements (new in 2026-11-03)
+
+On top of the three zones, three movements each give visual feedback:
+
+| Movement | What happens | Feedback |
+|---|---|---|
+| **Cross zones** | Move an object into another zone. | Status, colour and the open list update; the zone pulses and a ring grows around the object. |
+| **Come closer** | Someone who needs feedback moves toward someone who is open. | A dashed line and "Invitation". When the other person moves closer too, a solid glowing line and **"Discussing"** on both. |
+| **Move apart** | The two objects separate. | The line disappears and both go back to their own status. |
+
+Distances are measured in % of the frame height. A line is drawn from 40 apart, "Discussing" needs 22 or less and the other
+person must have moved at least 3; the line is dropped at 50 (invitation) or 30 (discussing), so a shaky code does not flicker
+(`INVITE_*`, `TALK_*` in `signals.js`). In demo mode the **Closer** button moves an object half way toward its partner and
+**Move everyone apart** puts everyone back.
+
 ## QR codes
 
 `phone` = A, `object-a` = B, `object-b` = C. Any other code only gets a grey box.

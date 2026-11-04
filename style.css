@@ -34,6 +34,8 @@ body { display: flex; }
 .band:first-child { border-left: 0; }
 .band b { font-size: 18px; font-weight: 600; text-shadow: 0 1px 6px #000; }
 .band span { margin-top: 4px; font-size: 12px; color: rgba(255, 255, 255, 0.7); text-shadow: 0 1px 4px #000; }
+@keyframes pulse { from { background-color: rgba(255, 255, 255, 0.28); } }
+.band.pulse { animation: pulse 0.9s ease-out; }
 .band[data-zone="focus"] { background: rgba(124, 140, 255, 0.10); }
 .band[data-zone="open"] { background: rgba(62, 207, 142, 0.10); }
 .band[data-zone="feedback"] { background: rgba(255, 181, 71, 0.10); }
@@ -48,7 +50,9 @@ body { display: flex; }
   font-size: 18px; line-height: 1.5; text-align: center;
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
 }
-.banner.match { border-color: var(--open); }
+.banner.match, .banner.talk { border-color: var(--open); }
+.banner.invite { border-color: #fff; }
+.banner.apart, .banner.cancel { border-color: var(--dim); color: var(--dim); }
 .banner[hidden] { display: none; }
 
 #panel {
@@ -79,11 +83,22 @@ body { display: flex; }
 .person[data-zone="open"] .status { color: var(--open); }
 .person[data-zone="feedback"] .status { color: var(--feedback); }
 .person[data-zone=""] { opacity: 0.55; }
+.person[data-link="invite"] { border-style: dashed; border-color: #fff; }
+.person[data-link="invite"] .status { color: #fff; }
+.person[data-link="talk"] { border-color: var(--open); background: rgba(62, 207, 142, 0.12); }
+.person[data-link="talk"] .status { color: var(--open); }
 
 .openlist { margin: 0; font-size: 16px; }
+.how { margin: 0; padding-left: 16px; color: var(--dim); font-size: 12px; line-height: 1.6; }
+.how li { margin-bottom: 4px; }
+.how b { color: var(--ink); margin-right: 4px; }
+.how em { color: var(--open); font-style: normal; }
 
 .sim { display: grid; gap: 6px; }
-.sim .row { display: grid; grid-template-columns: 24px repeat(4, 1fr); gap: 4px; align-items: center; }
+.sim .row { display: grid; grid-template-columns: 18px repeat(4, 1fr) 1.3fr; gap: 4px; align-items: center; }
+.sim button { font-size: 11px; }
+.sim button:disabled { opacity: 0.35; cursor: default; }
+.sim .apart { font-size: 12px; padding: 7px; }
 .sim button, #start button {
   font: inherit; color: var(--ink); background: #1d222a; border: 1px solid var(--line);
   border-radius: 6px; padding: 6px 2px; cursor: pointer;
